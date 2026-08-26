@@ -1,0 +1,11 @@
+# Core: NeMo Agent Toolkit with LangChain backend (needed for react_agent)
+nvidia-nat[langchain]
+
+# Optional, only needed if you flip USE_NEMO_CURATOR = True in curator/clean_pipeline.py.
+# Pinned to an 0.x release: 1.x replaced the Sequential/Modify/PiiModifier API used
+# in this project's curator code with a Ray Pipeline/ProcessingStage architecture.
+# nemo-curator[text_cpu]==0.6.0
+
+# ftfy gives the pure-Python fallback in curator/clean_pipeline.py better mojibake
+# repair than its built-in fallback dict. Optional.
+ftfy

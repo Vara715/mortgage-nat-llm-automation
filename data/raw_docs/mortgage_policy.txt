@@ -1,0 +1,59 @@
+Home Loan Policy Overview
+
+This document summarizes the home loan (mortgage) policy for retail applicants. It covers eligibility, interest rates, loan-to-value limits, documentation, and charges.
+
+Eligibility Criteria
+
+Applicants must be between 21 and 65 years of age at loan maturity. Salaried applicants need a minimum of 2 years of continuous employment, with at least 1 year at the current employer. Self-employed applicants need at least 3 years of business continuity, evidenced by ITRs and audited financials where applicable.
+
+CIBIL Score Requirement
+
+A CIBIL score of 750 or above is generally required for the best interest rate slab. Applicants with a score between 700 and 749 may still be considered but attract a higher interest rate and stricter income multiples. Applications with a score below 650 are typically declined unless a co-applicant with a strong score is added.
+
+Loan-to-Value (LTV) Ratio
+
+For loans up to Rs. 30 lakh, the LTV can go up to 90% of the property value. For loans between Rs. 30 lakh and Rs. 75 lakh, LTV is capped at 80%. For loans above Rs. 75 lakh, LTV is capped at 75%. The remaining amount must be funded by the applicant as a down payment.
+
+Interest Rate Types
+
+Two interest rate options are available: floating rate, linked to the bank's repo-linked lending rate (RLLR), and fixed rate, locked for an initial period of 2 to 5 years before reverting to floating. Floating rates are recommended for most applicants due to lower long-term cost, though fixed rates offer payment certainty during the locked period.
+
+Loan Tenure
+
+The maximum tenure is 30 years or up to the applicant's 70th birthday, whichever is earlier. Shorter tenures reduce total interest paid but increase the monthly EMI.
+
+Processing Fees and Charges
+
+A processing fee of 0.5% of the loan amount (minimum Rs. 5,000, maximum Rs. 15,000) plus applicable taxes is charged at login. Legal and technical valuation charges are billed separately at actuals. Late payment on an EMI attracts a penal charge of 2% per month on the overdue amount.
+
+Prepayment and Foreclosure
+
+For floating-rate loans to individual borrowers, no prepayment or foreclosure charges apply, in line with regulatory guidelines. For fixed-rate loans, a foreclosure charge of up to 2% of the outstanding principal may apply if the loan is closed before the fixed period ends.
+
+Documents Required — Salaried Applicants
+
+Salaried applicants must submit the last 3 months' salary slips, Form 16 or ITR for the last 2 years, 6 months' bank statements showing salary credits, PAN and Aadhaar copies, and proof of residence.
+
+Documents Required — Self-Employed Applicants
+
+Self-employed applicants must submit ITRs with computation of income for the last 3 years, audited financial statements (balance sheet and profit and loss) for the last 2 years, GST returns for the last 12 months where applicable, business proof, PAN and Aadhaar copies, and 12 months' bank statements for both business and personal accounts.
+
+Co-Applicants and Guarantors
+
+A co-applicant's income can be clubbed with the primary applicant's income to improve loan eligibility, provided the co-applicant is an immediate family member (spouse, parent, or son/daughter) and is also a co-owner of the property. A guarantor may be required if the applicant's income documentation is limited.
+
+EMI Calculation
+
+The Equated Monthly Installment (EMI) is calculated using the standard reducing-balance formula:
+
+EMI = [P x R x (1+R)^N] / [(1+R)^N - 1]
+
+where P is the principal loan amount, R is the monthly interest rate (annual rate divided by 12 and by 100), and N is the number of monthly installments (tenure in years multiplied by 12).
+
+Insurance Requirement
+
+Borrowers are required to take a property insurance policy covering fire and allied perils for the tenure of the loan. Life insurance covering the loan amount is recommended but not mandatory unless specified in the sanction letter.
+
+Grievance Redressal
+
+Applicants dissatisfied with loan processing or servicing may escalate to the branch's designated Loan Servicing Officer, and subsequently to the bank's internal ombudsman if unresolved within 15 working days.

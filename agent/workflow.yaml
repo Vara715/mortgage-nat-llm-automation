@@ -1,0 +1,53 @@
+# NAT workflow config for the Mortgage Policy Q&A agent.
+# Run with:
+#   nat run --config_file agent/workflow.yaml --input "your question"
+# Serve with:
+#   nat serve --config_file agent/workflow.yaml
+# Evaluate with:
+#   nat eval --config_file agent/workflow.yaml --dataset eval/eval_dataset.jsonl
+
+functions:
+  policy_retriever:
+    _type: policy_retriever
+    data_path: data/clean_mortgage_data.jsonl
+    top_k: 3
+
+  emi_calculator:
+    _type: emi_calculator
+
+llms:
+  nim_llm:
+    _type: nim
+    model_name: meta/llama-3.1-70b-instruct
+    temperature: 0.0
+
+  # Separate (cheaper/cooler) LLM used only as the eval judge, kept distinct
+  # from the agent's own reasoning LLM so eval results aren't self-graded.
+  judge_llm:
+    _type: nim
+    model_name: meta/llama-3.1-70b-instruct
+    temperature: 0.0
+
+workflow:
+  _type: react_agent
+  tool_names: [policy_retriever, emi_calculator]
+  llm_name: nim_llm
+  verbose: true
+  parse_agent_response_max_retries: 3
+
+eval:
+  general:
+    output_dir: ./eval_results
+    dataset:
+      _type: jsonl
+      file_path: eval/eval_dataset.jsonl
+  evaluators:
+    accuracy:
+      _type: tunable_rag_evaluator
+      llm_name: judge_llm
+      default_scoring: true
+      judge_llm_prompt: >
+        You are an intelligent evaluator that scores how well a generated answer
+        matches the expected answer for a mortgage policy question. Consider
+        coverage of key facts (numbers, percentages, conditions) and correctness.
+        Penalize hallucinated details not supported by the expected answer.

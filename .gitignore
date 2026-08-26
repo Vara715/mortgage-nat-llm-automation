@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+build/
+dist/
+
+# Environment variables / secrets
+.env
+.env.*
+
+# NAT / eval outputs
+eval_results/
+.nat_cache/
+
+# OS/editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
