@@ -6,6 +6,10 @@ Eligibility Criteria
 
 Applicants must be between 21 and 65 years of age at loan maturity. Salaried applicants need a minimum of 2 years of continuous employment, with at least 1 year at the current employer. Self-employed applicants need at least 3 years of business continuity, evidenced by ITRs and audited financials where applicable.
 
+Existing Obligations and FOIR
+
+The Fixed Obligation to Income Ratio (FOIR) — total monthly loan/EMI obligations, including the new home loan EMI, divided by gross monthly income — must not exceed 50%. Applicants whose FOIR would exceed this limit can still qualify by increasing income, extending the loan tenure to lower the EMI, or reducing the requested loan amount.
+
 CIBIL Score Requirement
 
 A CIBIL score of 750 or above is generally required for the best interest rate slab. Applicants with a score between 700 and 749 may still be considered but attract a higher interest rate and stricter income multiples. Applications with a score below 650 are typically declined unless a co-applicant with a strong score is added.
