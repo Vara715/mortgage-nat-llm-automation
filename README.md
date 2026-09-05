@@ -119,7 +119,10 @@ Try a few more:
 
 ```bash
 nat run --config_file agent/workflow.yaml --input "Calculate EMI for a 40 lakh loan at 8.75% for 20 years"
+nat run --config_file agent/workflow.yaml --input "My monthly income is Rs. 60,000, I already pay Rs. 8,000 EMI, and I want a Rs. 30 lakh loan at 8.75% for 20 years. Am I eligible, and if not what's the smallest change to qualify?"
+
 nat run --config_file agent/workflow.yaml --input "What documents do self-employed applicants need?"
+nat run --config_file agent/workflow.yaml --input "I took a 40 lakh loan at 8.75% for 20 years, paid 36 EMIs so far, and want to prepay Rs. 2,00,000 now. How much do I save?"
 ```
 
 ## Step 5 — Evaluate

@@ -15,22 +15,30 @@ functions:
   emi_calculator:
     _type: emi_calculator
 
+  eligibility_advisor:
+    _type: eligibility_advisor
+    foir_limit_percent: 50.0
+    max_tenure_years: 30.0
+
+  prepayment_advisor:
+    _type: prepayment_advisor
+
 llms:
   nim_llm:
     _type: nim
-    model_name: meta/llama-3.1-70b-instruct
+    model_name: meta/muse-glimmer-30b
     temperature: 0.0
 
   # Separate (cheaper/cooler) LLM used only as the eval judge, kept distinct
   # from the agent's own reasoning LLM so eval results aren't self-graded.
   judge_llm:
     _type: nim
-    model_name: meta/llama-3.1-70b-instruct
+    model_name: meta/muse-glimmer-30b
     temperature: 0.0
 
 workflow:
   _type: react_agent
-  tool_names: [policy_retriever, emi_calculator]
+  tool_names: [policy_retriever, emi_calculator, eligibility_advisor, prepayment_advisor]
   llm_name: nim_llm
   verbose: true
   parse_agent_response_max_retries: 3
