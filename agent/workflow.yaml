@@ -28,13 +28,17 @@ llms:
     _type: nim
     model_name: meta/muse-glimmer-30b
     temperature: 0.0
+    max_tokens: 2048
+    chat_template_kwargs:
+      enable_thinking: false
 
-  # Separate (cheaper/cooler) LLM used only as the eval judge, kept distinct
-  # from the agent's own reasoning LLM so eval results aren't self-graded.
   judge_llm:
     _type: nim
     model_name: meta/muse-glimmer-30b
     temperature: 0.0
+    max_tokens: 2048
+    chat_template_kwargs:
+      enable_thinking: false
 
 workflow:
   _type: react_agent
@@ -47,8 +51,8 @@ eval:
   general:
     output_dir: ./eval_results
     dataset:
-      _type: jsonl
-      file_path: eval/eval_dataset.jsonl
+      _type: json
+      file_path: eval/eval_dataset.json
   evaluators:
     accuracy:
       _type: tunable_rag_evaluator

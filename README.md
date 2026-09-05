@@ -1,8 +1,4 @@
-# Mortgage Policy Q&A Agent — NeMo Curator + NeMo Agent Toolkit (NAT)
-
-A TCS academic project combining:
-- **NeMo Curator** — cleans raw mortgage policy/FAQ text (mojibake, boilerplate, duplicates, PII)
-- **NeMo Agent Toolkit (NAT)** — wraps a ReAct agent with a policy retriever tool and an EMI calculator tool
+# Mortgage Policy Q&A Agent — NeMo Agent Toolkit (NAT)
 
 Everything here has been tested end-to-end using a pure-Python fallback for the
 curation step (no GPU/RAPIDS needed to try it), plus NAT-compatible agent code.
@@ -148,20 +144,4 @@ nat serve --config_file agent/workflow.yaml
 ```
 
 Connect the NeMo Agent Toolkit UI (github.com/NVIDIA/NeMo-Agent-Toolkit-UI) to
-this endpoint, enable "Intermediate Steps" in settings, and demo live — this
-shows evaluators the agent's reasoning trace (which tool it called, what it
-retrieved, how it computed the answer), which is the strongest visual for a
-viva/review.
-
-## Suggested improvements for a stronger final submission
-
-1. Replace the keyword-based `policy_retriever` in `tools.py` with real
-   embeddings: NIM's `nv-embedqa-e5-v5` model + a FAISS index.
-2. Run `USE_NEMO_CURATOR = True` with a larger, real document set to show
-   actual GPU/Ray-accelerated dedup at scale (and to demonstrate you understood
-   the 0.x → 1.x migration rather than just pinning around it).
-3. Add a second tool for eligibility rule-checking (age, income, existing EMI
-   ratio) separate from the EMI calculator.
-4. Capture NAT's profiler output (token counts, latency per tool call) as a
-   chart for your report — this directly demonstrates the "Day 2 production
-   readiness" value proposition NAT is built around.
+this endpoint, enable "Intermediate Steps" in settings, and demo live.
