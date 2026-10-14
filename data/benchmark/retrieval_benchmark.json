@@ -1,0 +1,30 @@
+[
+  {
+    "query_id": "r001",
+    "query": "qualified mortgage points and fees limit percentage",
+    "jurisdiction": "US",
+    "expected_citation_patterns": ["1026.43", "points and fees", "qualified mortgage"],
+    "min_results": 1
+  },
+  {
+    "query_id": "r002",
+    "query": "adjustable rate mortgage prepayment penalty prohibition",
+    "jurisdiction": "US",
+    "expected_citation_patterns": ["prepayment", "1026.43"],
+    "min_results": 1
+  },
+  {
+    "query_id": "r003",
+    "query": "foreclosure charges floating rate home loan borrower",
+    "jurisdiction": "IN",
+    "expected_citation_patterns": ["foreclosure", "floating"],
+    "min_results": 1
+  },
+  {
+    "query_id": "r004",
+    "query": "penal interest compounding moratorium RBI directive",
+    "jurisdiction": "IN",
+    "expected_citation_patterns": ["penal", "compound"],
+    "min_results": 1
+  }
+]

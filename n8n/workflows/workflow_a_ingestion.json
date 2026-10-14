@@ -1,0 +1,219 @@
+{
+  "name": "Workflow A - Dataset & Regulatory Ingestion",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "dataset-ingest",
+        "responseMode": "onReceived",
+        "responseData": "allEntries",
+        "options": {}
+      },
+      "id": "node-webhook-trigger",
+      "name": "Ingestion Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 2 * * *"
+            }
+          ]
+        }
+      },
+      "id": "node-schedule-trigger",
+      "name": "Daily Regulatory Sync (2 AM)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [100, 480]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validate dataset identifiers and set fallback defaults\nconst body = $input.first().json.body || $input.first().json;\nconst dataset_id = body.dataset_id || 'cfpb_reg_z_2024';\nconst triggered_by = body.triggered_by || 'scheduled_cron';\n\nreturn [{\n  json: {\n    dataset_id: dataset_id,\n    triggered_by: triggered_by,\n    request_timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-validate-request",
+      "name": "Validate Dataset Identifier",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [340, 380]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://localhost:8000/api/datasets/{{ $json.dataset_id }}/ingest",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "node-call-backend-ingest",
+      "name": "Trigger Backend Ingestion API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [560, 380]
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "seconds"
+      },
+      "id": "node-wait-3s",
+      "name": "Wait for Processing",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [780, 380]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://localhost:8000/api/jobs/{{ $('Trigger Backend Ingestion API').item.json.job_id }}",
+        "options": {}
+      },
+      "id": "node-poll-status",
+      "name": "Poll Ingestion Job Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [980, 380]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.status }}",
+              "value2": "Completed"
+            }
+          ]
+        }
+      },
+      "id": "node-check-status",
+      "name": "Is Job Completed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1200, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    outcome: 'SUCCESS',\n    dataset_id: $('Validate Dataset Identifier').item.json.dataset_id,\n    job_id: $input.first().json.id,\n    progress: $input.first().json.progress_percent,\n    completed_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-log-success",
+      "name": "Record Ingestion Success",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1440, 280]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    outcome: 'FAILED',\n    dataset_id: $('Validate Dataset Identifier').item.json.dataset_id,\n    job_id: $input.first().json.id,\n    error_details: $input.first().json.error_details || 'Unknown timeout or processing failure',\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-notify-admin-failure",
+      "name": "Notify Ingestion Failure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1440, 480]
+    }
+  ],
+  "connections": {
+    "Ingestion Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Validate Dataset Identifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Regulatory Sync (2 AM)": {
+      "main": [
+        [
+          {
+            "node": "Validate Dataset Identifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Dataset Identifier": {
+      "main": [
+        [
+          {
+            "node": "Trigger Backend Ingestion API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Backend Ingestion API": {
+      "main": [
+        [
+          {
+            "node": "Wait for Processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Processing": {
+      "main": [
+        [
+          {
+            "node": "Poll Ingestion Job Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll Ingestion Job Status": {
+      "main": [
+        [
+          {
+            "node": "Is Job Completed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Job Completed?": {
+      "main": [
+        [
+          {
+            "node": "Record Ingestion Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Ingestion Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

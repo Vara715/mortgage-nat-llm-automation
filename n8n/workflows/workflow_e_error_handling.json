@@ -1,0 +1,89 @@
+{
+  "name": "Workflow E - Error Handling & Circuit Breaker",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "node-e-error-trigger",
+      "name": "Global Workflow Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const execution = $input.first().json.execution || {};\nconst error = $input.first().json.error || {};\nconst workflow = $input.first().json.workflow || {};\n\nlet message = error.message || 'Unknown automation execution failure';\n\n// Redact any potential PII (SSN, PAN, Account numbers)\nmessage = message.replace(/\\b\\d{3}-\\d{2}-\\d{4}\\b/g, '[REDACTED_SSN]');\nmessage = message.replace(/\\b[A-Z]{5}[0-9]{4}[A-Z]{1}\\b/g, '[REDACTED_PAN]');\n\nreturn [{\n  json: {\n    workflow_name: workflow.name || 'Mortgage Automation Workflow',\n    execution_id: execution.id || 'N/A',\n    failed_node: error.node?.name || 'Unknown Node',\n    sanitized_error: message,\n    occurred_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-e-sanitize-error",
+      "name": "Sanitize Error & Redact PII",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [340, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8000/api/audit/event",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"event_type\": \"N8N_WORKFLOW_FAILURE\",\n  \"actor\": \"n8n-automation-engine\",\n  \"entity_type\": \"WORKFLOW_EXECUTION\",\n  \"entity_id\": \"{{ $json.execution_id }}\",\n  \"payload\": \"Workflow '{{ $json.workflow_name }}' failed at node '{{ $json.failed_node }}': {{ $json.sanitized_error }}\"\n}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "node-e-log-audit-event",
+      "name": "Log to Backend Audit Ledger",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [580, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const errorInfo = $('Sanitize Error & Redact PII').item.json;\nreturn [{\n  json: {\n    alert: 'INCIDENT_RECORDED',\n    severity: 'CRITICAL',\n    workflow: errorInfo.workflow_name,\n    node: errorInfo.failed_node,\n    error: errorInfo.sanitized_error,\n    logged_to_audit_ledger: true,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-e-admin-alert",
+      "name": "Emit Sanitized Admin Incident",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [800, 300]
+    }
+  ],
+  "connections": {
+    "Global Workflow Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Sanitize Error & Redact PII",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sanitize Error & Redact PII": {
+      "main": [
+        [
+          {
+            "node": "Log to Backend Audit Ledger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Backend Audit Ledger": {
+      "main": [
+        [
+          {
+            "node": "Emit Sanitized Admin Incident",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

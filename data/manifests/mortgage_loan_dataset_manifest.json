@@ -1,0 +1,45 @@
+{
+  "dataset_id": "mortgage_loan_underwriting_2024",
+  "dataset_name": "Mortgage Loan Underwriting & Demographic Dataset",
+  "description": "50,000 mortgage applicant profiles containing demographic, credit score, income, debt, and maximum loan approval data.",
+  "source_type": "CSV",
+  "source_location": "data/mortgage_loan_dataset.csv",
+  "file_format": "csv",
+  "jurisdiction": "US",
+  "version": "1.0.0",
+  "collection_date": "2024-10-14",
+  "license_notes": "Public Domain / Research Mortgage Underwriting Dataset",
+  "selected_columns": [
+    "Gender",
+    "Age",
+    "Married",
+    "Education",
+    "Job",
+    "Employment Years",
+    "Annual Income (USD)",
+    "Interest Rate",
+    "Down Payment (USD)",
+    "Credit Score",
+    "Existing Monthly Debt (USD)",
+    "Area",
+    "Loans Repaid",
+    "Max Loan Amount (USD)"
+  ],
+  "parser_config": {
+    "ocr_enabled": false,
+    "extract_tables": true,
+    "clean_headers_footers": true
+  },
+  "chunking_config": {
+    "chunk_size_tokens": 500,
+    "chunk_overlap_tokens": 50,
+    "structure_aware": true
+  },
+  "embedding_config": {
+    "provider": "tfidf_dense",
+    "model": "tfidf_dense_v1",
+    "dimension": 128
+  },
+  "enable_qa_generation": true,
+  "access_retention": "PERMANENT"
+}

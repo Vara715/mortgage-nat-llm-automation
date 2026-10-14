@@ -1,0 +1,29 @@
+{
+  "dataset_id": "rbi_housing_circulars_2024",
+  "dataset_name": "RBI Master Circulars on Housing Finance and Fair Lending",
+  "description": "Authentic Reserve Bank of India circulars: DBOD.No.Dir.BC.107 (foreclosure charges ban), RBI/2023-24/53 (fair lending penal interest compounding ban), and housing loan LTV ceilings.",
+  "source_type": "LOCAL_FILE",
+  "source_location": "data/raw/in_regulations",
+  "file_format": "txt",
+  "jurisdiction": "IN",
+  "version": "2024.1",
+  "collection_date": "2024-01-15",
+  "license_notes": "Official Reserve Bank of India Regulatory Circulars - Public Guidance",
+  "parser_config": {
+    "ocr_enabled": false,
+    "extract_tables": true,
+    "clean_headers_footers": true
+  },
+  "chunking_config": {
+    "chunk_size_tokens": 500,
+    "chunk_overlap_tokens": 80,
+    "structure_aware": true
+  },
+  "embedding_config": {
+    "provider": "tfidf_dense",
+    "model": "tfidf_dense_v1",
+    "dimension": 128
+  },
+  "enable_qa_generation": true,
+  "access_retention": "PERMANENT"
+}

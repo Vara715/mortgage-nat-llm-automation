@@ -4,17 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mortgage-nat-project"
-version = "0.1.0"
-description = "Mortgage Policy Q&A agent (NeMo Curator + NeMo Agent Toolkit)"
+version = "0.2.0"
+description = "TCS Mortgage Loan Compliance System — AI Efficient Regulatory Compliance & Analysis"
 requires-python = ">=3.11"
 
-# This entry point is how NAT auto-discovers the @register_function
-# definitions in agent/tools.py at runtime. NAT scans the environment for
-# entry points named "nat.plugins" and imports the referenced module,
-# which runs the @register_function decorators in it. See NAT's Plugin
-# System guide for details.
+# NAT auto-discovers custom tools via the nat.plugins entry point
 [project.entry-points.'nat.plugins']
 mortgage_nat_project = "agent.tools"
 
 [tool.setuptools]
-packages = ["agent"]
+packages = ["agent", "extraction", "compliance", "kb"]

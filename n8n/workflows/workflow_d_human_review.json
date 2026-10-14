@@ -1,0 +1,156 @@
+{
+  "name": "Workflow D - Human Review & Notifications",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "human-review",
+        "responseMode": "onReceived",
+        "responseData": "allEntries",
+        "options": {}
+      },
+      "id": "node-d-webhook",
+      "name": "Review Required Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nreturn [{\n  json: {\n    analysis_id: body.analysis_id,\n    document_id: body.document_id,\n    severity: body.severity || 'HIGH',\n    reason: body.reason || 'Flagged for human reviewer oversight.',\n    queued_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-d-format-payload",
+      "name": "Format Review Task Details",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [320, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://localhost:8000/api/reviews/tasks?status=PENDING",
+        "options": {}
+      },
+      "id": "node-d-fetch-queue",
+      "name": "Fetch Review Queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [540, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const task = $('Format Review Task Details').item.json;\nconst queue = $input.first().json;\nconst totalPending = Array.isArray(queue) ? queue.length : 1;\n\nconst notificationMessage = `[COMPLIANCE ALERT - HITL REVIEW NEEDED]\\n` +\n  `Severity: ${task.severity}\\n` +\n  `Document ID: ${task.document_id}\\n` +\n  `Analysis ID: ${task.analysis_id}\\n` +\n  `Reason: ${task.reason}\\n` +\n  `Total Pending Reviews in Queue: ${totalPending}\\n` +\n  `Timestamp: ${task.queued_at}`;\n\nreturn [{\n  json: {\n    ...task,\n    total_pending: totalPending,\n    notification_message: notificationMessage,\n    notification_dispatched: true\n  }\n}];"
+      },
+      "id": "node-d-prepare-notification",
+      "name": "Prepare Reviewer Notification",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [760, 300]
+    },
+    {
+      "parameters": {
+        "amount": 5,
+        "unit": "seconds"
+      },
+      "id": "node-d-wait-review",
+      "name": "Wait for Analyst Assessment",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [980, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://localhost:8000/api/compliance/analyses/{{ $('Format Review Task Details').item.json.analysis_id }}",
+        "options": {}
+      },
+      "id": "node-d-check-decision",
+      "name": "Check Analysis Decision Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1180, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    event: 'HITL_REVIEW_TRACKED',\n    analysis_id: $('Format Review Task Details').item.json.analysis_id,\n    document_id: $('Format Review Task Details').item.json.document_id,\n    review_status: $input.first().json.overall_status || 'PENDING_REVIEW',\n    audit_timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-d-audit-log",
+      "name": "Log HITL Audit Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1400, 300]
+    }
+  ],
+  "connections": {
+    "Review Required Trigger": {
+      "main": [
+        [
+          {
+            "node": "Format Review Task Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Review Task Details": {
+      "main": [
+        [
+          {
+            "node": "Fetch Review Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Review Queue": {
+      "main": [
+        [
+          {
+            "node": "Prepare Reviewer Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Reviewer Notification": {
+      "main": [
+        [
+          {
+            "node": "Wait for Analyst Assessment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Analyst Assessment": {
+      "main": [
+        [
+          {
+            "node": "Check Decision Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Analysis Decision Status": {
+      "main": [
+        [
+          {
+            "node": "Log HITL Audit Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

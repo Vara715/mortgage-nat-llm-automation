@@ -1,0 +1,49 @@
+[
+  {
+    "doc_id": "us_qm_001",
+    "doc_path": "data/raw/sample_loans/us_compliant_qm_note.txt",
+    "jurisdiction": "US",
+    "description": "US Compliant QM 30-year fixed note",
+    "expected_fields": {
+      "loan_amount": {"value_num": 350000.0, "tolerance": 5000},
+      "interest_rate": {"value_str": "6.375", "tolerance_pct": 0.5},
+      "rate_type": {"value_str": "fixed"},
+      "prepayment_penalty_exists": {"value_bool": false},
+      "points_and_fees_percent": {"value_num": 1.20, "tolerance": 0.2}
+    }
+  },
+  {
+    "doc_id": "us_hf_001",
+    "doc_path": "data/raw/sample_loans/us_non_compliant_highfee_note.txt",
+    "jurisdiction": "US",
+    "description": "US Non-Compliant High-Fee ARM note",
+    "expected_fields": {
+      "loan_amount": {"value_num": 280000.0, "tolerance": 5000},
+      "rate_type": {"value_str": "variable"},
+      "points_and_fees_percent": {"value_num": 4.11, "tolerance": 0.3},
+      "prepayment_penalty_exists": {"value_bool": true}
+    }
+  },
+  {
+    "doc_id": "in_compliant_001",
+    "doc_path": "data/raw/sample_loans/compliant_home_loan_agreement.txt",
+    "jurisdiction": "IN",
+    "description": "Indian compliant home loan",
+    "expected_fields": {
+      "loan_amount": {"value_num": 5000000.0, "tolerance": 50000},
+      "prepayment_penalty_exists": {"value_bool": false},
+      "penal_charges_compound": {"value_bool": false}
+    }
+  },
+  {
+    "doc_id": "in_noncompliant_001",
+    "doc_path": "data/raw/sample_loans/non_compliant_home_loan_agreement.txt",
+    "jurisdiction": "IN",
+    "description": "Indian non-compliant home loan",
+    "expected_fields": {
+      "loan_amount": {"value_num": 6500000.0, "tolerance": 50000},
+      "prepayment_penalty_exists": {"value_bool": true},
+      "penal_charges_compound": {"value_bool": true}
+    }
+  }
+]

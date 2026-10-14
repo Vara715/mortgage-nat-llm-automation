@@ -1,0 +1,180 @@
+{
+  "name": "Workflow C - Compliance Analysis",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "compliance-analyze",
+        "responseMode": "onReceived",
+        "responseData": "allEntries",
+        "options": {}
+      },
+      "id": "node-c-webhook",
+      "name": "Analysis Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nif (!body.document_id) {\n  throw new Error('document_id is required for compliance audit');\n}\nreturn [{\n  json: {\n    document_id: body.document_id,\n    jurisdiction: body.jurisdiction || 'US',\n    triggered_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-c-validate",
+      "name": "Validate Analysis Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [320, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://localhost:8000/api/compliance/analyze/{{ $json.document_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "id": "node-c-call-analysis",
+      "name": "Execute Compliance Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [540, 300]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.overall_status }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "POTENTIAL_ISSUE"
+            },
+            {
+              "value2": "NEEDS_REVIEW"
+            },
+            {
+              "value2": "NO_ISSUE_IDENTIFIED"
+            }
+          ]
+        }
+      },
+      "id": "node-c-switch-status",
+      "name": "Route by Compliance Finding",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [780, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/human-review",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"analysis_id\": \"{{ $('Execute Compliance Analysis').item.json.id }}\",\n  \"document_id\": \"{{ $('Validate Analysis Request').item.json.document_id }}\",\n  \"severity\": \"HIGH\",\n  \"reason\": \"Potential statutory or regulatory violation detected by deterministic engine.\",\n  \"findings_count\": {{ $('Execute Compliance Analysis').item.json.findings ? $('Execute Compliance Analysis').item.json.findings.length : 0 }}\n}",
+        "options": {}
+      },
+      "id": "node-c-route-violation-review",
+      "name": "Route Issue to Human Review",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1040, 180]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/human-review",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"analysis_id\": \"{{ $('Execute Compliance Analysis').item.json.id }}\",\n  \"document_id\": \"{{ $('Validate Analysis Request').item.json.document_id }}\",\n  \"severity\": \"MEDIUM\",\n  \"reason\": \"Ambiguous clause or missing loan disclosure requiring analyst verification.\"\n}",
+        "options": {}
+      },
+      "id": "node-c-route-uncertain-review",
+      "name": "Route Uncertain Case to Review",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1040, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    outcome: 'NO_ISSUE_IDENTIFIED',\n    analysis_id: $('Execute Compliance Analysis').item.json.id,\n    document_id: $('Validate Analysis Request').item.json.document_id,\n    disclaimer: 'Absence of an identified violation does not constitute a definitive legal guarantee of compliance.',\n    verified_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-c-record-clean",
+      "name": "Record Clean Compliance Finding",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1040, 420]
+    }
+  ],
+  "connections": {
+    "Analysis Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Validate Analysis Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Analysis Request": {
+      "main": [
+        [
+          {
+            "node": "Execute Compliance Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Compliance Analysis": {
+      "main": [
+        [
+          {
+            "node": "Route by Compliance Finding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Compliance Finding": {
+      "main": [
+        [
+          {
+            "node": "Route Issue to Human Review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Route Uncertain Case to Review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record Clean Compliance Finding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

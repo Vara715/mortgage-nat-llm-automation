@@ -1,16 +1,21 @@
-# NAT workflow config for the Mortgage Policy Q&A agent.
+# NAT workflow config for TCS Mortgage Loan Compliance System.
 # Run with:
-#   nat run --config_file agent/workflow.yaml --input "your question"
+#   nat run --config_file agent/workflow.yaml --input "Audit the compliance of data/real_docs/sample_loan_agreements/non_compliant_home_loan_agreement.txt"
 # Serve with:
 #   nat serve --config_file agent/workflow.yaml
 # Evaluate with:
-#   nat eval --config_file agent/workflow.yaml --dataset eval/eval_dataset.jsonl
+#   nat eval --config_file agent/workflow.yaml --dataset eval/eval_dataset.json
 
 functions:
   policy_retriever:
     _type: policy_retriever
-    data_path: data/clean_mortgage_data.jsonl
     top_k: 3
+
+  compliance_checker:
+    _type: compliance_checker
+
+  loan_agreement_analyzer:
+    _type: loan_agreement_analyzer
 
   emi_calculator:
     _type: emi_calculator
@@ -42,7 +47,13 @@ llms:
 
 workflow:
   _type: react_agent
-  tool_names: [policy_retriever, emi_calculator, eligibility_advisor, prepayment_advisor]
+  tool_names:
+    - policy_retriever
+    - compliance_checker
+    - loan_agreement_analyzer
+    - emi_calculator
+    - eligibility_advisor
+    - prepayment_advisor
   llm_name: nim_llm
   verbose: true
   parse_agent_response_max_retries: 3
@@ -60,6 +71,6 @@ eval:
       default_scoring: true
       judge_llm_prompt: >
         You are an intelligent evaluator that scores how well a generated answer
-        matches the expected answer for a mortgage policy question. Consider
-        coverage of key facts (numbers, percentages, conditions) and correctness.
-        Penalize hallucinated details not supported by the expected answer.
+        matches the expected answer for a mortgage policy and compliance question.
+        Consider coverage of key regulatory citations (RBI circulars), numbers,
+        percentages, and compliance violation rationale. Penalize hallucinated details.

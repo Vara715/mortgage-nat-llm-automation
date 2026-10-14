@@ -2,61 +2,103 @@
   {
     "id": "q1",
     "question": "What CIBIL score do I need for a home loan?",
-    "answer": "Generally 750 or above for the best rate; 700-749 is still considered but at a higher rate; below 650 is typically declined unless a strong co-applicant is added."
+    "answer": "Generally 750 or above for the best rate; 700-749 is still considered but at a higher rate; below 650 is typically declined unless a strong co-applicant is added.",
+    "category": "Eligibility"
   },
   {
     "id": "q2",
     "question": "Calculate EMI for a 40 lakh loan at 8.75% for 20 years",
-    "answer": "The EMI is approximately Rs. 35,348 per month over 240 installments."
+    "answer": "The EMI is approximately Rs. 35,348 per month over 240 installments.",
+    "category": "Loan Terms"
   },
   {
     "id": "q3",
     "question": "What documents do self-employed applicants need?",
-    "answer": "3 years' ITRs with computation of income, 2 years' audited financials, GST returns for the last 12 months, business proof, PAN/Aadhaar, and 12 months' bank statements for business and personal accounts."
+    "answer": "3 years' ITRs with computation of income, 2 years' audited financials, GST returns for the last 12 months, business proof, PAN/Aadhaar, and 12 months' bank statements for business and personal accounts.",
+    "category": "Eligibility"
   },
   {
     "id": "q4",
     "question": "Can I prepay my home loan without any charges?",
-    "answer": "Floating-rate loans to individual borrowers can be prepaid or foreclosed with no charges. Fixed-rate loans may attract a foreclosure charge of up to 2% of the outstanding principal."
+    "answer": "Floating-rate loans to individual borrowers can be prepaid or foreclosed with no charges under RBI circular DBOD.No.Dir.BC.107/13.03.00/2011-12. Fixed-rate loans may attract a foreclosure charge of up to 2% of the outstanding principal.",
+    "category": "Prepayment & Foreclosure"
   },
   {
     "id": "q5",
     "question": "What is the loan-to-value ratio for a loan of Rs. 50 lakh?",
-    "answer": "For loans between Rs. 30 lakh and Rs. 75 lakh, LTV is capped at 80% of the property value, so at least 20% must be funded as a down payment."
+    "answer": "For loans between Rs. 30 lakh and Rs. 75 lakh, LTV is capped at 80% of the property value under RBI guidelines, so at least 20% must be funded as a down payment.",
+    "category": "LTV & Margin Norms"
   },
   {
     "id": "q6",
     "question": "What is the maximum age to apply for a home loan and the maximum tenure?",
-    "answer": "Applicants must be 21-65 years of age at loan maturity, and maximum tenure is 30 years or up to the applicant's 70th birthday, whichever is earlier."
+    "answer": "Applicants must be 21-65 years of age at loan maturity, and maximum tenure is 30 years or up to the applicant's 70th birthday, whichever is earlier.",
+    "category": "Eligibility"
   },
   {
     "id": "q7",
     "question": "Is there a processing fee for a home loan application?",
-    "answer": "Yes, 0.5% of the loan amount, subject to a minimum of Rs. 5,000 and maximum of Rs. 15,000, plus applicable taxes, charged at login."
+    "answer": "Yes, 0.5% of the loan amount, subject to a minimum of Rs. 5,000 and maximum of Rs. 15,000, plus applicable taxes, charged at login.",
+    "category": "Loan Terms"
   },
   {
     "id": "q8",
     "question": "What happens if I miss an EMI payment?",
-    "answer": "A penal charge of 2% per month applies on the overdue amount, and repeated missed payments can affect the applicant's CIBIL score."
+    "answer": "A penal charge of 2% per month applies on the overdue amount. Under RBI guidelines, penal charges cannot be compounded or capitalised into principal debt.",
+    "category": "Regulatory Penalties"
   },
   {
     "id": "q9",
     "question": "My application ID is APP-2024-00583 — what is the current status of my loan application?",
-    "answer": "The agent should decline to answer, since it has no access to individual application records, and should direct the user to their relationship manager or the loan portal instead of guessing or hallucinating a status."
+    "answer": "The agent should decline to answer, since it has no access to individual application records, and should direct the user to their relationship manager or the loan portal instead of guessing or hallucinating a status.",
+    "category": "Guardrails"
   },
   {
     "id": "q10",
     "question": "Calculate EMI for a 25 lakh loan at 9.2% for 15 years",
-    "answer": "The EMI is approximately Rs. 25,655 per month over 180 installments."
+    "answer": "The EMI is approximately Rs. 25,655 per month over 180 installments.",
+    "category": "Loan Terms"
   },
   {
     "id": "q11",
     "question": "My monthly income is Rs. 60,000, I already pay Rs. 8,000 EMI on another loan, and I want a Rs. 30 lakh home loan at 8.75% for 20 years. Am I eligible, and if not what's the smallest change that would make me eligible?",
-    "answer": "Not eligible — FOIR is about 57.5%, above the 50% limit. The smallest changes to qualify are roughly: increase monthly income by about Rs. 9,000, or reduce the requested loan amount by about Rs. 5.1 lakh."
+    "answer": "Not eligible — FOIR is about 57.5%, above the 50% limit. The smallest changes to qualify are roughly: increase monthly income by about Rs. 9,000, or reduce the requested loan amount by about Rs. 5.1 lakh.",
+    "category": "Eligibility"
   },
   {
     "id": "q12",
     "question": "I took a 40 lakh loan at 8.75% for 20 years, I've paid 36 EMIs so far, and I want to make an extra prepayment of Rs. 2,00,000 now. How much interest will I save and how much sooner will the loan close?",
-    "answer": "Roughly Rs. 6.1 lakh in interest saved and the loan closes about 23 months (just under 2 years) earlier, with the EMI staying the same."
+    "answer": "Roughly Rs. 6.1 lakh in interest saved and the loan closes about 23 months (just under 2 years) earlier, with the EMI staying the same.",
+    "category": "Prepayment & Foreclosure"
+  },
+  {
+    "id": "q13",
+    "question": "Are banks permitted to charge prepayment penalty on floating rate home loans to individual borrowers?",
+    "answer": "No. Under RBI Circular DBOD.No.Dir.BC.107/13.03.00/2011-12, banks are strictly prohibited from charging foreclosure charges or pre-payment penalties on home loans extended on a floating interest rate basis to individual borrowers.",
+    "category": "Prepayment & Foreclosure"
+  },
+  {
+    "id": "q14",
+    "question": "Can banks grant term loans to housing intermediary agencies against direct loans for Non-Resident Indians (NRIs)?",
+    "answer": "Yes. Under Section 3.2.4 of the RBI Master Circular on Housing Finance, banks can grant term loans to housing intermediary agencies against direct loans sanctioned/proposed for NRIs, provided the intermediary is authorized by RBI to grant housing loans to NRIs.",
+    "category": "NRI Financing"
+  },
+  {
+    "id": "q15",
+    "question": "What are the RBI regulations regarding penal interest compounding on overdue loan amounts?",
+    "answer": "Under RBI Fair Lending Practice directives (DoR.MCS.REC.28/01.01.001/2023-24), penalty for default must be levied as separate simple 'penal charges' and cannot be compounded or capitalised into the principal debt.",
+    "category": "Regulatory Penalties"
+  },
+  {
+    "id": "q16",
+    "question": "What is the maximum permissible Loan-to-Value (LTV) ratio for a loan of Rs. 65 lakh?",
+    "answer": "For loans between Rs. 30 lakh and Rs. 75 lakh, the LTV ratio is capped at 80% of property value under RBI guidelines, requiring at least a 20% margin contribution from borrower funds.",
+    "category": "LTV & Margin Norms"
+  },
+  {
+    "id": "q17",
+    "question": "What disclosures are mandatory in the Key Facts Statement (KFS) under RBI guidelines?",
+    "answer": "The KFS must prominently disclose the Annual Percentage Rate (APR), schedule of all fees and charges, recovery agent details, cooling-off period, and grievance redressal officer contact details.",
+    "category": "Fair Practices Code"
   }
 ]

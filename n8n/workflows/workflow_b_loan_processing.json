@@ -1,0 +1,197 @@
+{
+  "name": "Workflow B - Loan Document Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "loan-process",
+        "responseMode": "onReceived",
+        "responseData": "allEntries",
+        "options": {}
+      },
+      "id": "node-b-webhook",
+      "name": "Loan Upload Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nif (!body.document_id) {\n  throw new Error('Missing required field: document_id');\n}\nreturn [{\n  json: {\n    document_id: body.document_id,\n    jurisdiction: body.jurisdiction || 'US',\n    doc_type: body.doc_type || 'Residential Mortgage Note',\n    received_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-b-validate",
+      "name": "Validate Document Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [320, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://localhost:8000/api/documents/{{ $json.document_id }}/extract",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "node-b-start-extract",
+      "name": "Trigger Loan Term Extraction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [540, 300]
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "seconds"
+      },
+      "id": "node-b-wait-2s",
+      "name": "Wait for Extractor",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [760, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://localhost:8000/api/documents/{{ $('Validate Document Request').item.json.document_id }}/extraction",
+        "options": {}
+      },
+      "id": "node-b-get-extraction",
+      "name": "Retrieve Structured Terms",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [980, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.extracted_fields ? $json.extracted_fields.length : 0 }}",
+              "operation": "largerEqual",
+              "value2": 1
+            }
+          ]
+        }
+      },
+      "id": "node-b-check-fields",
+      "name": "Fields Extracted Successfully?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1200, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/compliance-analyze",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"document_id\": \"{{ $('Validate Document Request').item.json.document_id }}\",\n  \"jurisdiction\": \"{{ $('Validate Document Request').item.json.jurisdiction }}\"\n}",
+        "options": {}
+      },
+      "id": "node-b-trigger-compliance",
+      "name": "Forward to Compliance Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1440, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    outcome: 'EXTRACTION_INCOMPLETE',\n    document_id: $('Validate Document Request').item.json.document_id,\n    reason: 'Zero fields were extracted from the document. OCR review required.',\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-b-flag-incomplete",
+      "name": "Flag Document for Manual OCR",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1440, 400]
+    }
+  ],
+  "connections": {
+    "Loan Upload Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Document Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Document Request": {
+      "main": [
+        [
+          {
+            "node": "Trigger Loan Term Extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Loan Term Extraction": {
+      "main": [
+        [
+          {
+            "node": "Wait for Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Extractor": {
+      "main": [
+        [
+          {
+            "node": "Retrieve Structured Terms",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Structured Terms": {
+      "main": [
+        [
+          {
+            "node": "Fields Extracted Successfully?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fields Extracted Successfully?": {
+      "main": [
+        [
+          {
+            "node": "Forward to Compliance Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Flag Document for Manual OCR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

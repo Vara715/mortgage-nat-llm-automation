@@ -1,0 +1,29 @@
+{
+  "dataset_id": "hmda_public_2023",
+  "dataset_name": "Home Mortgage Disclosure Act (HMDA) 2023 Lending Dataset",
+  "description": "Authentic public mortgage lending activity records published by FFIEC/CFPB for market rate and demographic benchmark intelligence.",
+  "source_type": "CSV",
+  "source_location": "data/raw/hmda/hmda_2023_subset.csv",
+  "file_format": "csv",
+  "jurisdiction": "US",
+  "version": "2023.Final",
+  "collection_date": "2023-12-31",
+  "license_notes": "FFIEC Public Records - Free Open Access",
+  "selected_columns": [
+    "activity_year",
+    "lei",
+    "loan_type",
+    "loan_purpose",
+    "loan_amount",
+    "action_taken",
+    "state_code",
+    "interest_rate",
+    "property_value",
+    "loan_to_value_ratio"
+  ],
+  "parser_config": {
+    "extract_tables": true
+  },
+  "enable_qa_generation": false,
+  "access_retention": "PERMANENT"
+}

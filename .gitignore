@@ -1,27 +1,114 @@
-# Python
+# ==============================================================================
+# Byte-compiled / optimized / virtual environment files
+# ==============================================================================
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
 .venv/
 venv/
 env/
-*.egg-info/
-build/
-dist/
+ENV/
+env.bak/
+venv.bak/
 
-# Environment variables / secrets
+# Environment variables & secrets
 .env
 .env.*
+!.env.example
 
-# NAT / eval outputs
+# ==============================================================================
+# Data, Datasets, and Large Corpora
+# ==============================================================================
+# Ingested datasets and tabular files
+data/*.csv
+data/*.parquet
+data/*.jsonl
+data/*.tsv
+data/mortgage_loan_dataset.csv
+data/clean_mortgage_data.jsonl
+
+# Raw documents, regulatory corpora & sample loans
+data/raw/
+data/raw_docs/
+data/real_docs/
+data/structured_qna/
+
+# Runtime storage, user uploads & generated reports
+data/uploads/
+data/reports/
+
+# Processed databases and machine learning models
+data/processed/
+data/knowledge_base/
+
+# Generic databases and ML model binaries
+*.db
+*.sqlite
+*.sqlite3
+*.joblib
+*.pkl
+*.pt
+*.pth
+*.bin
+*.onnx
+*.safetensors
+
+# Preserve manifests and benchmarks in git
+!data/manifests/
+!data/manifests/**
+!data/benchmark/
+!data/benchmark/**
+
+# ==============================================================================
+# Logs & Audit trails
+# ==============================================================================
+logs/
+*.log
+audit_events.db
+
+# ==============================================================================
+# Testing, Coverage & Caches
+# ==============================================================================
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
 eval_results/
 .nat_cache/
 
-# OS/editor cruft
+# ==============================================================================
+# Docker & Orchestration Volume Caches
+# ==============================================================================
+n8n_data/
+postgres_data/
+redis_data/
+
+# ==============================================================================
+# OS & Editor Cruft
+# ==============================================================================
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
-
-# Logs
-*.log
+*.swp
+*.swo
+*~
