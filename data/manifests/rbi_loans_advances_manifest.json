@@ -1,0 +1,29 @@
+{
+  "dataset_id": "rbi_loans_advances_master_circular",
+  "dataset_name": "RBI Master Circular - Loans and Advances - Statutory and Other Restrictions",
+  "description": "Official Reserve Bank of India Master Circular DBOD.No.Dir.BC.13/13.03.00/2009-10 consolidating statutory restrictions on loans against bank's own shares, advances to directors, infrastructure lending guidelines, and Fair Practices Code for Lenders.",
+  "source_type": "LOCAL_FILE",
+  "source_location": "data/raw/in_regulations/rbi_master_circular_loans_advances.pdf",
+  "file_format": "pdf",
+  "jurisdiction": "IN",
+  "version": "2009.1",
+  "collection_date": "2024-10-14",
+  "license_notes": "Official Reserve Bank of India Master Circular - Public Guidance",
+  "parser_config": {
+    "ocr_enabled": false,
+    "extract_tables": true,
+    "clean_headers_footers": true
+  },
+  "chunking_config": {
+    "chunk_size_tokens": 600,
+    "chunk_overlap_tokens": 100,
+    "structure_aware": true
+  },
+  "embedding_config": {
+    "provider": "tfidf_dense",
+    "model": "tfidf_dense_v1",
+    "dimension": 128
+  },
+  "enable_qa_generation": true,
+  "access_retention": "PERMANENT"
+}

@@ -30,6 +30,7 @@ from backend.app.api.routes import (
     qa,
     jobs,
     retrieval,
+    admin,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -86,6 +87,7 @@ app.include_router(hmda.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
 app.include_router(qa.router, prefix="/api")
 app.include_router(jobs.router, prefix="/api")
+app.include_router(admin.router, prefix="/api")
 
 
 @app.get("/")

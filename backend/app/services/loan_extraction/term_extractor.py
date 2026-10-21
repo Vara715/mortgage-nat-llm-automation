@@ -11,6 +11,18 @@ from typing import Dict, Any, List, Optional
 from pydantic import BaseModel
 
 
+def _safe_float(val: Optional[str]) -> Optional[float]:
+    if not val:
+        return None
+    cleaned = re.sub(r"[^\d\.]", "", str(val))
+    if not cleaned or not any(c.isdigit() for c in cleaned):
+        return None
+    try:
+        return float(cleaned)
+    except (ValueError, TypeError):
+        return None
+
+
 class ExtractedFieldRecord(BaseModel):
     field_name: str
     value: Any
@@ -37,12 +49,18 @@ class LoanTermExtractor:
         missing: List[str] = []
 
         # 1. Determine Jurisdiction
-        if any(w in text_lower for w in ["12 cfr", "fannie mae", "freddie mac", "u.s. $", "springfield, il", "florida", "state of", "subprime residential"]):
+        is_indian = any(w in text_lower for w in ["rupee", "rs.", "lakh", "crore", "rbi", "reserve bank of india", "ireda", "delhi", "mumbai", "maharashtra", "companies act", "banking regulation act"])
+        is_us = any(w in text_lower for w in ["12 cfr", "fannie mae", "freddie mac", "u.s. $", "consumer financial protection bureau", "regulation z", "subprime residential", "fha loan", "va loan", "closing disclosure"])
+
+        if is_indian and not is_us:
+            jurisdiction = "IN"
+            doc_type = "Commercial Term Loan" if "commercial" in text_lower or "corporate" in text_lower or "ltd." in text_lower else "Housing Loan Agreement (India)"
+        elif is_us:
             jurisdiction = "US"
             doc_type = "Residential Mortgage Note (US Uniform Instrument)"
-        elif any(w in text_lower for w in ["rbi", "reserve bank of india", "rupees", "rs.", "bengaluru", "noida", "mumbai", "companies act, 2013"]):
+        elif is_indian:
             jurisdiction = "IN"
-            doc_type = "Commercial Term Loan" if "commercial" in text_lower or "corporate" in text_lower else "Housing Loan Agreement (India)"
+            doc_type = "Housing Loan Agreement (India)"
         else:
             jurisdiction = "US"  # default fallback
             doc_type = "General Credit Agreement"
@@ -56,8 +74,8 @@ class LoanTermExtractor:
 
         # 3. Principal / Loan Amount
         m_amt = re.search(r"(?:u\.s\.\s*\$|inr|rs\.?|₹|\$)\s*([\d,]+(?:\.\d+)?)", text, re.IGNORECASE)
-        if m_amt:
-            amt_val = float(m_amt.group(1).replace(",", ""))
+        amt_val = _safe_float(m_amt.group(1)) if m_amt else None
+        if amt_val is not None:
             fields["loan_amount"] = ExtractedFieldRecord(
                 field_name="loan_amount",
                 value=amt_val,
@@ -70,8 +88,8 @@ class LoanTermExtractor:
 
         # 4. Interest Rate & Rate Type
         m_rate = re.search(r"(\d+(?:\.\d+)?)\s*%\s*(?:per annum|yearly rate|p\.a\.?|interest rate)?", text, re.IGNORECASE)
-        if m_rate:
-            rate_val = float(m_rate.group(1))
+        rate_val = _safe_float(m_rate.group(1)) if m_rate else None
+        if rate_val is not None:
             fields["interest_rate"] = ExtractedFieldRecord(
                 field_name="interest_rate",
                 value=rate_val,
@@ -119,7 +137,9 @@ class LoanTermExtractor:
             if m_prepay:
                 p_text = m_prepay.group(0).strip()
                 m_p_rate = re.search(r"(\d+(?:\.\d+)?)\s*%", p_text)
-                penalty_pct = float(m_p_rate.group(1)) if m_p_rate else 2.5
+                penalty_pct = _safe_float(m_p_rate.group(1)) if m_p_rate else 2.5
+                if penalty_pct is None:
+                    penalty_pct = 2.5
                 fields["prepayment_penalty_exists"] = ExtractedFieldRecord(
                     field_name="prepayment_penalty_exists",
                     value=True,
@@ -136,8 +156,8 @@ class LoanTermExtractor:
         # Extract dollar amount (e.g. "$4,200.00" or "$11,500.00")
         m_pts_amt = re.search(r"(?:points(?: and fees)?|origination charges|total fees|lender fees)[^\n]{0,120}?\$\s*([\d,]+(?:\.\d+)?)", text, re.IGNORECASE)
         
-        pts_amount = float(m_pts_amt.group(1).replace(",", "")) if m_pts_amt else None
-        pts_percent = float(m_pts_pct.group(1)) if m_pts_pct else None
+        pts_amount = _safe_float(m_pts_amt.group(1)) if m_pts_amt else None
+        pts_percent = _safe_float(m_pts_pct.group(1)) if m_pts_pct else None
 
         if pts_percent is not None or pts_amount is not None:
             if pts_amount is not None:

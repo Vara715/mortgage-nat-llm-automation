@@ -14,6 +14,7 @@ Implements the PDF EXTRACTION pipeline from Slide 3 of the TCS Mortgage Loan arc
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+import re
 from pydantic import BaseModel, Field
 
 try:
@@ -28,6 +29,13 @@ try:
 except ImportError:
     HAS_PYPDF = False
 
+try:
+    import pytesseract
+    from PIL import Image
+    HAS_PYTESSERACT = True
+except ImportError:
+    HAS_PYTESSERACT = False
+
 
 class VisualDebugInfo(BaseModel):
     page_number: int
@@ -38,6 +46,11 @@ class VisualDebugInfo(BaseModel):
     layout_blocks: List[Dict[str, Any]] = Field(default_factory=list)
     has_text: bool = True
     page_dimensions: Dict[str, float] = Field(default_factory=dict)
+    ocr_applied: bool = False
+    extraction_quality_score: float = 1.0  # 0.0 to 1.0
+    quality_assessment: str = "HIGH"  # 'HIGH', 'ACCEPTABLE', 'DEGRADED_SCANNED'
+    requires_human_verification: bool = False
+    ocr_notes: Optional[str] = None
 
 
 class ExtractedTable(BaseModel):
@@ -64,12 +77,24 @@ class ExtractedPage(BaseModel):
     images: List[ExtractedImageMeta] = Field(default_factory=list)
     visual_debug: VisualDebugInfo
 
+    @property
+    def ocr_applied(self) -> bool:
+        return self.visual_debug.ocr_applied
+
+    @property
+    def extraction_quality_score(self) -> float:
+        return self.visual_debug.extraction_quality_score
+
 
 class ExtractedDocument(BaseModel):
     source_file: str
     total_pages: int
     metadata: Dict[str, Any] = Field(default_factory=dict)
     pages: List[ExtractedPage] = Field(default_factory=list)
+    overall_quality_score: float = 1.0
+    overall_quality_status: str = "HIGH"  # 'HIGH', 'ACCEPTABLE', 'DEGRADED'
+    scanned_pages_count: int = 0
+    requires_hitl_review: bool = False
 
     @property
     def full_text(self) -> str:
@@ -102,6 +127,27 @@ class PDFExtractor:
         else:
             raise RuntimeError("Neither pdfplumber nor pypdf is installed.")
 
+    def _assess_page_quality(self, text: str, image_count: int, ocr_applied: bool) -> tuple[float, str, bool]:
+        clean_text = text.strip()
+        char_count = len(clean_text)
+        words = clean_text.split()
+        word_count = len(words)
+
+        # Baseline text assessment
+        if char_count >= 200 and word_count >= 30:
+            return 1.0, "HIGH", False
+        elif char_count >= 80:
+            return 0.85, "ACCEPTABLE", False
+        elif ocr_applied and char_count >= 50:
+            return 0.80, "ACCEPTABLE", False
+        elif image_count > 0 and char_count < 80:
+            # Scanned or image-heavy page with insufficient digital text
+            return 0.35, "DEGRADED_SCANNED", True
+        elif char_count == 0:
+            return 0.10, "DEGRADED_EMPTY", True
+        else:
+            return 0.60, "ACCEPTABLE", False
+
     def _extract_with_pdfplumber(self, path: Path) -> ExtractedDocument:
         pages: List[ExtractedPage] = []
         doc_metadata: Dict[str, Any] = {}
@@ -114,6 +160,8 @@ class PDFExtractor:
                 "total_pages": len(pdf.pages),
                 "file_size_bytes": path.stat().st_size,
             }
+
+            scanned_pages = 0
 
             for p_idx, page in enumerate(pdf.pages):
                 page_num = p_idx + 1
@@ -156,12 +204,34 @@ class PDFExtractor:
                         )
                     )
 
-                # 4. Visual Debugging info (Slide 3)
+                # 4. OCR Fallback for low-density / scanned pages (Slide 9 Limitation)
+                ocr_applied = False
+                ocr_notes = None
+                if len(page_text.strip()) < 80 and len(extracted_images) > 0:
+                    if HAS_PYTESSERACT:
+                        try:
+                            # Render page image for OCR
+                            p_img = page.to_image(resolution=200).original
+                            ocr_text = pytesseract.image_to_string(p_img)
+                            if ocr_text and len(ocr_text.strip()) > len(page_text.strip()):
+                                page_text = ocr_text
+                                ocr_applied = True
+                                ocr_notes = "OCR successfully extracted scanned text."
+                        except Exception as e:
+                            ocr_notes = f"OCR fallback attempted but failed: {e}"
+                    else:
+                        ocr_notes = "Scanned/image content detected; pytesseract unavailable."
+
+                quality_score, quality_assessment, req_hitl = self._assess_page_quality(
+                    page_text, len(extracted_images), ocr_applied
+                )
+                if req_hitl:
+                    scanned_pages += 1
+
+                # 5. Visual Debugging info (Slide 3)
                 layout_blocks = []
                 if self.enable_visual_debugging:
-                    # Capture text blocks or layout clusters
                     words = page.extract_words()
-                    # Sample up to 10 block anchors for debug inspection without bloat
                     for w in words[:15]:
                         layout_blocks.append({
                             "text": w.get("text"),
@@ -179,6 +249,11 @@ class PDFExtractor:
                     layout_blocks=layout_blocks,
                     has_text=bool(page_text.strip()),
                     page_dimensions={"width": float(page.width), "height": float(page.height)},
+                    ocr_applied=ocr_applied,
+                    extraction_quality_score=quality_score,
+                    quality_assessment=quality_assessment,
+                    requires_human_verification=req_hitl,
+                    ocr_notes=ocr_notes,
                 )
 
                 pages.append(
@@ -191,11 +266,19 @@ class PDFExtractor:
                     )
                 )
 
+        avg_score = round(sum(p.extraction_quality_score for p in pages) / max(len(pages), 1), 3)
+        overall_status = "HIGH" if avg_score >= 0.85 else ("ACCEPTABLE" if avg_score >= 0.65 else "DEGRADED")
+        requires_hitl = overall_status == "DEGRADED" or scanned_pages > 0
+
         return ExtractedDocument(
             source_file=path.name,
             total_pages=len(pages),
             metadata=doc_metadata,
             pages=pages,
+            overall_quality_score=avg_score,
+            overall_quality_status=overall_status,
+            scanned_pages_count=scanned_pages,
+            requires_hitl_review=requires_hitl,
         )
 
     def _extract_with_pypdf(self, path: Path) -> ExtractedDocument:
@@ -206,9 +289,13 @@ class PDFExtractor:
             "file_size_bytes": path.stat().st_size,
         }
 
+        scanned_pages = 0
         for p_idx, page in enumerate(reader.pages):
             page_num = p_idx + 1
             txt = page.extract_text() or ""
+            q_score, q_status, req_hitl = self._assess_page_quality(txt, len(page.images), False)
+            if req_hitl:
+                scanned_pages += 1
             v_debug = VisualDebugInfo(
                 page_number=page_num,
                 char_count=len(txt),
@@ -216,6 +303,9 @@ class PDFExtractor:
                 table_count=0,
                 image_count=len(page.images),
                 has_text=bool(txt.strip()),
+                extraction_quality_score=q_score,
+                quality_assessment=q_status,
+                requires_human_verification=req_hitl,
             )
             pages.append(
                 ExtractedPage(
@@ -227,9 +317,17 @@ class PDFExtractor:
                 )
             )
 
+        avg_score = round(sum(p.extraction_quality_score for p in pages) / max(len(pages), 1), 3)
+        overall_status = "HIGH" if avg_score >= 0.85 else ("ACCEPTABLE" if avg_score >= 0.65 else "DEGRADED")
+        requires_hitl = overall_status == "DEGRADED" or scanned_pages > 0
+
         return ExtractedDocument(
             source_file=path.name,
             total_pages=len(pages),
             metadata=doc_metadata,
             pages=pages,
+            overall_quality_score=avg_score,
+            overall_quality_status=overall_status,
+            scanned_pages_count=scanned_pages,
+            requires_hitl_review=requires_hitl,
         )
