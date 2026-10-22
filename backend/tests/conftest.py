@@ -1,7 +1,7 @@
 """
 conftest.py
 ===========
-Pytest fixtures for MortgageGuard AI test suite.
+Pytest fixtures for mortgage_assistant test suite.
 """
 
 import pytest

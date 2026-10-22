@@ -35,3 +35,13 @@ class LoanDocumentResponse(BaseModel):
 class FieldCorrectionRequest(BaseModel):
     corrected_value: str
     comment: Optional[str] = None
+
+
+from backend.app.schemas.compliance import ComplianceAnalysisResponse  # noqa: E402
+
+
+class UploadAndAuditResponse(BaseModel):
+    document: LoanDocumentResponse
+    compliance: ComplianceAnalysisResponse
+    automated_pipeline_status: str
+    message: str

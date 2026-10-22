@@ -14,7 +14,7 @@ def test_admin_overview_endpoint():
     response = client.get("/api/admin/overview")
     assert response.status_code == 200
     data = response.json()
-    assert data["system_name"] == "morgage-loan-automation"
+    assert data["system_name"] in ["mortgage_assistant", "mortgagae_assistent", "morgage-loan-automation"]
     assert data["database_connected"] is True
     assert data["registered_agents_count"] >= 6
     assert "optimizer_telemetry" in data

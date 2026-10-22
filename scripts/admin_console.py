@@ -1,7 +1,7 @@
 """
 admin_console.py
 ================
-Interactive Administration & Governance Console for MortgageGuard AI / TCS Mortgage Loan Compliance System.
+Interactive Administration & Governance Console for mortgage_assistant / TCS Mortgage Loan Compliance System.
 Provides a comprehensive Administrator Point-of-View (POV) over platform health, agent fleet,
 optimization metrics, human-in-the-loop exception queues, and regulatory audit trails.
 
@@ -166,7 +166,7 @@ def show_audit_trail(limit: int = 10, agent_filter: str = None):
 def interactive_menu():
     while True:
         print("=" * 60)
-        print("   MORTGAGEGUARD AI — ADMINISTRATION & GOVERNANCE CONSOLE")
+        print("   MORTGAGE_ASSISTANT — ADMINISTRATION & GOVERNANCE CONSOLE")
         print("=" * 60)
         print("  1. Platform Diagnostics & Overview")
         print("  2. Multi-Agent Fleet & Telemetry")
@@ -204,7 +204,7 @@ def interactive_menu():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="MortgageGuard AI Administration Console")
+    parser = argparse.ArgumentParser(description="mortgage_assistant Administration Console")
     parser.add_argument("--overview", action="store_true", help="Display platform health & diagnostics")
     parser.add_argument("--agents", action="store_true", help="List agent fleet telemetry")
     parser.add_argument("--metrics", action="store_true", help="View latency & token budget telemetry")

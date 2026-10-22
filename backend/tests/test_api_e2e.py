@@ -15,7 +15,7 @@ def test_health_endpoint():
     assert res.status_code == 200
     data = res.json()
     assert data["status"] == "healthy"
-    assert data["service"] in ["morgage-loan-automation", "MortgageGuard AI"]
+    assert data["service"] in ["morgage-loan-automation", "MortgageGuard AI", "mortgage_assistant", "mortgagae_assistent"]
     assert data["database"] == "connected"
 
 

@@ -90,7 +90,7 @@ def _build_analysis_response(analysis: ComplianceAnalysis, db: Session) -> Compl
         summary=analysis.summary,
         findings=finding_schemas,
         limitations=[
-            "MortgageGuard AI is an automated decision-support system and does not provide legal advice.",
+            "mortgage_assistant is an automated decision-support system and does not provide legal advice.",
             "Absence of an issue does not guarantee regulatory compliance under unevaluated rules.",
             "All findings must be confirmed by a certified compliance officer or legal counsel.",
         ],

@@ -1,7 +1,7 @@
 """
 auth.py  (routes)
 =================
-Authentication endpoints for MortgageGuard AI.
+Authentication endpoints for mortgage_assistant.
 
 Provides:
 - POST /api/auth/token  — issue a JWT for dev users

@@ -30,10 +30,10 @@ def download_pdf_report(analysis_id: str, db: Session = Depends(get_db)):
         event_type="COMPLIANCE_REPORT_DOWNLOADED",
         entity_type="ComplianceAnalysis",
         entity_id=analysis_id,
-        payload={"filename": f"MortgageGuard_Report_{analysis_id[:8]}.pdf"},
+        payload={"filename": f"Mortgage_Assistant_Report_{analysis_id[:8]}.pdf"},
     )
 
-    filename = f"MortgageGuard_Report_{analysis_id[:8]}.pdf"
+    filename = f"Mortgage_Assistant_Report_{analysis_id[:8]}.pdf"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",

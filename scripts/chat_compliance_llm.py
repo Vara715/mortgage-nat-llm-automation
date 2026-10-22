@@ -90,7 +90,7 @@ def run_rag_query(query: str, jurisdiction: str = "US", top_k: int = 4):
 
 def interactive_loop():
     print("\n" + "=" * 80)
-    print("  MortgageGuard AI — Interactive LLM Compliance Assistant")
+    print("  mortgage_assistant — Interactive LLM Compliance Assistant")
     print(f"  Connected Provider: {settings.LLM_PROVIDER} | Model: {settings.DEFAULT_LLM_MODEL}")
     print("  Type your question below (or 'exit' / 'quit' to end):")
     print("=" * 80 + "\n")

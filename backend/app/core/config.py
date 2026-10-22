@@ -1,7 +1,7 @@
 """
 config.py
 =========
-Global configuration and environment settings for MortgageGuard AI.
+Global configuration and environment settings for mortgage_assistant.
 Supports configurable LLM, embedding providers, database, and jurisdiction controls.
 """
 
@@ -16,7 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=str(BASE_DIR / ".env"), env_file_encoding="utf-8", extra="ignore")
 
-    PROJECT_NAME: str = "morgage-loan-automation"
+    PROJECT_NAME: str = "mortgage_assistant"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api"
     ENVIRONMENT: str = Field(default="development", description="development, staging, or production")
@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     
     # Database configuration (Defaults to high-speed local SQLite with WAL mode, supports PostgreSQL)
     DATABASE_URL: str = Field(
-        default=f"sqlite:///{BASE_DIR}/data/processed/mortgageguard.db",
+        default=f"sqlite:///{BASE_DIR}/data/processed/mortgage_assistant.db",
         description="SQLAlchemy database connection string",
     )
 

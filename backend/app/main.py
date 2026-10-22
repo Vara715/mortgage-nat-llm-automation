@@ -1,7 +1,7 @@
 """
 main.py
 =======
-MortgageGuard AI — Evidence-Grounded Mortgage Loan Compliance and Regulatory Intelligence Platform
+mortgage_assistant — Evidence-Grounded Mortgage Loan Compliance and Regulatory Intelligence Platform
 FastAPI Application Entrypoint
 """
 
@@ -34,13 +34,13 @@ from backend.app.api.routes import (
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
-logger = logging.getLogger("mortgageguard")
+logger = logging.getLogger("mortgage_assistant")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan: runs startup logic before yield, teardown after."""
-    logger.info("Initializing MortgageGuard AI database schema...")
+    logger.info("Initializing mortgage_assistant database schema...")
     init_db()
     logger.info("Database schema initialized successfully.")
     yield

@@ -1,7 +1,7 @@
 """
 orchestrator.py
 ===============
-Enterprise Multi-Agent Orchestrator for MortgageGuard AI / TCS Mortgage Loan Compliance System.
+Enterprise Multi-Agent Orchestrator for mortgage_assistant / TCS Mortgage Loan Compliance System.
 Implements the Supervisor Pattern orchestrating 6 specialized agents:
 
 1. IngestionExtractionAgent  : PDF parsing, table extraction, OCR quality assessment

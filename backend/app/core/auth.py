@@ -1,7 +1,7 @@
 """
 auth.py
 =======
-JWT authentication utilities for MortgageGuard AI.
+JWT authentication utilities for mortgage_assistant.
 Auth is OPTIONAL (non-breaking): if no token is provided, falls through
 to an anonymous default user so all existing tests continue to pass.
 """

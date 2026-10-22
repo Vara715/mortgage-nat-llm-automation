@@ -1,7 +1,7 @@
 """
 calculate_loan.py
 =================
-Customer financial advisory calculator CLI for MortgageGuard / morgage-loan-automation.
+Customer financial advisory calculator CLI for mortgage_assistant.
 
 Features:
 1. EMI Calculator (Reducing balance, total repayment, interest breakdown)

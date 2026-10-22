@@ -112,7 +112,7 @@ class HMDAAnalyticsService:
         disclaimer = (
             "NOTICE: HMDA data represents public statistical reporting pursuant to Regulation C (12 CFR Part 1003). "
             "Approval of an application in HMDA data does NOT establish legal compliance under Regulation Z, "
-            "RESPA, or other statutory regimes. MortgageGuard AI uses HMDA solely for market context."
+            "RESPA, or other statutory regimes. mortgage_assistant uses HMDA solely for market context."
         )
 
         return HMDAAnalyticsResponse(

@@ -1,7 +1,7 @@
 """
 seed_data.py
 ============
-Pre-seeds MortgageGuard AI with:
+Pre-seeds mortgage_assistant with:
 1. Authoritative US and Indian regulatory source files and indexed chunks
 2. Authentic CFPB/FFIEC HMDA 2023 public mortgage records
 3. Standard sample loan documents across US and Indian jurisdictions

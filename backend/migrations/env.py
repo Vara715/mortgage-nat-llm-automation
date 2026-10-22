@@ -1,5 +1,5 @@
 """
-Alembic migration environment for MortgageGuard AI.
+Alembic migration environment for mortgage_assistant.
 Reads the live DATABASE_URL from project settings so migrations run
 against the same database as the running application.
 """

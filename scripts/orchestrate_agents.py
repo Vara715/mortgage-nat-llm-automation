@@ -1,7 +1,7 @@
 """
 orchestrate_agents.py
 =====================
-CLI Multi-Agent Orchestrator runner for MortgageGuard AI / TCS Mortgage Loan Compliance System.
+CLI Multi-Agent Orchestrator runner for mortgage_assistant / TCS Mortgage Loan Compliance System.
 Demonstrates Supervisor Pattern multi-agent coordination with full telemetry.
 
 Usage:

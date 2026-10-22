@@ -1,7 +1,7 @@
 """
 security.py
 ===========
-Security controls for MortgageGuard AI:
+Security controls for mortgage_assistant:
 - File validation & path traversal defense
 - Prompt injection detection and input sanitization
 - Role-Based Access Control (RBAC) helpers

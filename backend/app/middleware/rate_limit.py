@@ -1,7 +1,7 @@
 """
 rate_limit.py
 =============
-Configures slowapi-based rate limiting for MortgageGuard AI.
+Configures slowapi-based rate limiting for mortgage_assistant.
 
 Usage
 -----

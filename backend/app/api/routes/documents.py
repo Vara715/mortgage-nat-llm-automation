@@ -16,7 +16,13 @@ from backend.app.core.config import settings
 from backend.app.core.security import validate_safe_filename
 from backend.app.db.session import get_db
 from backend.app.models.entities import LoanDocument, ExtractedLoanField
-from backend.app.schemas.document import LoanDocumentResponse, ExtractedFieldSchema, FieldCorrectionRequest
+from backend.app.schemas.document import (
+    LoanDocumentResponse,
+    ExtractedFieldSchema,
+    FieldCorrectionRequest,
+    UploadAndAuditResponse,
+)
+from backend.app.services.compliance.analyzer import ComplianceAnalyzerService
 from backend.app.services.extraction.pdf_service import PDFExtractionService
 from backend.app.services.loan_extraction.term_extractor import LoanTermExtractor
 from backend.app.services.audit.audit_service import AuditService
@@ -243,3 +249,87 @@ def trigger_document_extraction(doc_id: str, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(doc)
     return _to_response(doc)
+
+
+@router.post("/upload-and-audit", response_model=UploadAndAuditResponse)
+async def upload_and_audit_document(
+    file: UploadFile = File(...),
+    jurisdiction_override: str = Form(None),
+    db: Session = Depends(get_db),
+):
+    """
+    Automated End-to-End Ingestion and Compliance Audit Pipeline (Slides 2, 3, 7, 8):
+    1. Ingests uploaded loan document (PDF or TXT)
+    2. Parses layout and extracts structured terms with provenance
+    3. Executes deterministic statutory compliance checks (RBI or CFPB)
+    4. Retrieves grounded regulatory evidence via hybrid search
+    5. Synthesizes legal reasoning with live LLM
+    6. Automatically enqueues to Human Review Queue (HITL) if violations or missing terms are found
+    """
+    safe_name = validate_safe_filename(file.filename)
+    upload_dir = settings.DATA_DIR / "raw" / "uploads"
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    target_path = upload_dir / safe_name
+
+    contents = await file.read()
+    with open(target_path, "wb") as f:
+        f.write(contents)
+
+    # 1. Extraction
+    pdf_service = PDFExtractionService()
+    if target_path.suffix.lower() == ".pdf":
+        extracted = pdf_service.extract(target_path)
+        full_text = extracted["full_text"]
+    else:
+        full_text = contents.decode("utf-8", errors="replace")
+
+    extractor = LoanTermExtractor()
+    extraction_result = extractor.extract_terms(full_text, document_name=safe_name)
+    jurisdiction = jurisdiction_override.upper() if jurisdiction_override else extraction_result.jurisdiction
+
+    doc = LoanDocument(
+        filename=safe_name,
+        file_type=target_path.suffix.lstrip(".").lower() or "pdf",
+        file_size=len(contents),
+        jurisdiction=jurisdiction,
+        doc_type=extraction_result.doc_type,
+        status="PARSED",
+        file_path=str(target_path),
+    )
+    db.add(doc)
+    db.flush()
+
+    for field_name, f_rec in extraction_result.fields.items():
+        field_obj = ExtractedLoanField(
+            loan_document_id=doc.id,
+            field_name=field_name,
+            field_value_str=f_rec.value_str,
+            field_value_num=f_rec.value_num,
+            source_page=f_rec.source_page,
+            source_excerpt=f_rec.source_excerpt,
+            confidence=f_rec.confidence,
+            is_verified=False,
+        )
+        db.add(field_obj)
+
+    db.commit()
+    db.refresh(doc)
+
+    AuditService.log(
+        db=db,
+        event_type="DOCUMENT_UPLOADED",
+        entity_type="LoanDocument",
+        entity_id=doc.id,
+        payload={"filename": safe_name, "jurisdiction": jurisdiction},
+    )
+
+    # 2. Automated Compliance Analysis
+    analyzer = ComplianceAnalyzerService(db)
+    analysis_res = analyzer.analyze_document(doc.id)
+
+    return UploadAndAuditResponse(
+        document=_to_response(doc),
+        compliance=analysis_res,
+        automated_pipeline_status=analysis_res.overall_status,
+        message=f"Automated pipeline completed successfully. Audit status: {analysis_res.overall_status}",
+    )

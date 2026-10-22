@@ -1,7 +1,7 @@
 """
 admin.py
 ========
-Administrative POV API Router for MortgageGuard AI / TCS Mortgage Loan Compliance System.
+Administrative POV API Router for mortgage_assistant / TCS Mortgage Loan Compliance System.
 Provides system diagnostics, agent telemetry, review queue oversight, and audit governance.
 """
 
